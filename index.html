@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="OpenDexGrasp: open-vocabulary task-oriented dexterous grasp pose generation from language, multi-view images, and object geometry. Accepted at CoRL 2026.">
+  <meta name="author" content="Jiyao Zhang, Junhan Wang, Tianyu Wang, Zeyuan Chen, Anthony Bolten, Yitong Peng, Hao Dong">
+  <meta name="keywords" content="OpenDexGrasp, OpenDexVerse, Dexterous Grasping, Task-Oriented Grasping, Robotics, Affordance, Vision-Language Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="OpenDexGrasp: Open-vocabulary Task-Oriented Dexterous Grasping">
+  <meta property="og:description" content="A data and generative modeling framework for functional dexterous grasping under free-form language instructions. Accepted at CoRL 2026.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="./static/assets/figures/teaser.png">
+  <title>OpenDexGrasp: Open-vocabulary Task-Oriented Dexterous Grasping</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23fff0ee'/%3E%3Cpath d='M14 35c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18Z' fill='%23b31c12'/%3E%3Cpath d='M24 33h16v6H24z' fill='white'/%3E%3Cpath d='M29 22h6v28h-6z' fill='white'/%3E%3C/svg%3E">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script defer src="./static/js/index.js"></script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <div class="container nav-inner">
+      <a class="nav-brand" href="#top">OpenDexGrasp</a>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#dataset">OpenDexVerse</a>
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#demos">Demos</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero-section" id="top">
+    <div class="container is-max-widescreen">
+      <div class="hero-copy">
+        <!-- <p class="eyebrow">Open-vocabulary task-oriented dexterous grasping</p> -->
+        <h1 class="publication-title">
+          <span>OpenDexGrasp</span>: Open-vocabulary Task-Oriented Dexterous Grasping
+        </h1>
+        <p class="hero-lead">
+          From free-form language, multi-view RGB observations, and object geometry,
+          OpenDexGrasp generates high-DoF hand poses that hold objects in ways that preserve the intended function.
+        </p>
+        <div class="publication-authors" aria-label="Authors and affiliations">
+          <div class="author-row">
+            <a href="https://jiyao06.github.io/" target="_blank" rel="noopener">Jiyao Zhang<sup>1,2*</sup></a>
+            <a href="https://haner-liveinlove.github.io/" target="_blank" rel="noopener">Junhan Wang<sup>1*</sup></a>
+            <a href="https://tianyuwang01.github.io/" target="_blank" rel="noopener">Tianyu Wang<sup>1*</sup></a>
+          </div>
+          <div class="author-row">
+            <a href="https://chenzyn.github.io/" target="_blank" rel="noopener">Zeyuan Chen<sup>1</sup></a>
+            <a href="https://www.linkedin.com/in/anthony-bolton-040883245/" target="_blank" rel="noopener">Anthony Bolten<sup>1</sup></a>
+            <a href="https://github.com/fengwu2005" target="_blank" rel="noopener">Yitong Peng<sup>1</sup></a>
+            <a href="https://zsdonghao.github.io/" target="_blank" rel="noopener">Hao Dong<sup>1,2†</sup></a>
+          </div>
+          <div class="affiliations">
+            <p><sup>1</sup> CFCS, School of CS, PKU, China</p>
+            <p><sup>2</sup> National Key Laboratory for Multimedia Information Processing, School of CS, PKU, China</p>
+            <p class="author-notes"><sup>*</sup> Equal contribution; <sup>†</sup> Corresponding author</p>
+          </div>
+        </div>
+        <div class="meta-line">
+          <span class="acceptance-badge"><i class="fas fa-check-circle" aria-hidden="true"></i> Accepted at CoRL 2026</span>
+        </div>
+        <div class="publication-links">
+          <a class="button action-button" href="https://arxiv.org/abs/TODO" target="_blank" rel="noopener">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span>
+            <span>Paper</span>
+          </a>
+          <a class="button action-button secondary" href="#bibtex">
+            <span class="icon"><i class="fas fa-quote-right"></i></span>
+            <span>BibTeX</span>
+          </a>
+          <span class="button action-button muted" aria-disabled="true">
+            <span class="icon"><i class="fab fa-github"></i></span>
+            <span>Code Coming Soon</span>
+          </span>
+        </div>
+      </div>
+
+      <figure class="teaser-block">
+        <img src="./static/assets/figures/teaser.png" alt="OpenDexGrasp teaser showing OpenDexVerse data, language and vision inputs, affordance prediction, and real-world task-oriented dexterous grasping examples.">
+        <figcaption>
+          OpenDexGrasp couples large-scale semantic-geometric coverage with embodied functional alignment,
+          then directly generates task-consistent dexterous grasps without a separate affordance-to-pose inference stage.
+        </figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <main>
+    <section class="section compact-section" id="abstract">
+      <div class="container is-max-desktop">
+        <div class="section-heading">
+          <p class="section-kicker">Abstract</p>
+          <h2>Functional grasping is not just holding.</h2>
+        </div>
+        <div class="content body-copy">
+          <p>
+            Dexterous grasp synthesis has made rapid progress in stable and physically plausible hand poses.
+            Real manipulation, however, requires grasps that preserve task function: a kettle should be grasped by
+            the handle for pouring, a knife should avoid unsafe contact regions during handover, and a spray bottle
+            should leave the trigger accessible for use.
+          </p>
+          <p>
+            OpenDexGrasp studies open-vocabulary task-oriented dexterous grasp generation. The model must infer
+            intent from natural language, ground the relevant object region from multi-view visual observations and
+            3D geometry, and generate an executable high-DoF grasp. Its key view is that affordance grounding and
+            dexterous action generation are two supervision views of the same task-conditioned perception-action
+            distribution.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="metric-band" aria-label="OpenDexGrasp key statistics">
+      <div class="container is-max-widescreen metric-grid">
+        <div class="metric">
+          <strong>1.24M</strong>
+          <span>automatic grasps in OpenDex-Scale</span>
+        </div>
+        <div class="metric">
+          <strong>557.18k</strong>
+          <span>functional poses from VLM annotation</span>
+        </div>
+        <div class="metric">
+          <strong>27.42k</strong>
+          <span>teleop and transferred grasps in OpenDex-Align</span>
+        </div>
+        <div class="metric">
+          <strong>72.0%</strong>
+          <span>average real-world success rate</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact-section">
+      <div class="container is-max-widescreen">
+        <div class="section-heading centered">
+          <p class="section-kicker">Key Insight</p>
+          <h2>One latent space for task, contact, and action.</h2>
+        </div>
+        <div class="insight-grid">
+          <article class="info-card">
+            <span class="card-index">01</span>
+            <h3>Task semantics choose the grasp.</h3>
+            <p>
+              The same object can demand different contacts depending on the instruction. OpenDexGrasp treats
+              language, visible parts, and geometry as coupled evidence for the desired action.
+            </p>
+          </article>
+          <article class="info-card">
+            <span class="card-index">02</span>
+            <h3>Affordance is supervision, not a bottleneck.</h3>
+            <p>
+              Point-level affordance labels ground the latent representation on functional surface regions,
+              while inference remains direct grasp generation rather than a cascade of map prediction and pose search.
+            </p>
+          </article>
+          <article class="info-card">
+            <span class="card-index">03</span>
+            <h3>Coverage must precede alignment.</h3>
+            <p>
+              The C2A Recipe first expands semantic-geometric support with automatic synthesis, then aligns the
+              distribution using high-quality teleoperated demonstrations and category-level transfer.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band-section" id="dataset">
+      <div class="container is-max-widescreen">
+        <div class="section-heading">
+          <p class="section-kicker">OpenDexVerse</p>
+          <h2>Coverage-to-Alignment data construction.</h2>
+          <p>
+            OpenDexVerse combines two complementary sources. OpenDex-Scale provides broad semantic-geometric
+            coverage through automatic synthesis and vision-language annotation. OpenDex-Align provides embodied
+            alignment through human teleoperation and dense-correspondence transfer.
+          </p>
+        </div>
+        <figure class="figure-panel">
+          <img src="./static/assets/figures/data_pipeline.png" alt="OpenDexVerse construction pipeline for OpenDex-Scale and OpenDex-Align.">
+        </figure>
+        <div class="dataset-grid">
+          <article class="dataset-card scale-card">
+            <h3>OpenDex-Scale</h3>
+            <p>Large-scale functional coverage from automatically synthesized grasps, rendered multi-view images, and VLM functional annotations.</p>
+            <dl>
+              <div><dt>Categories</dt><dd>105</dd></div>
+              <div><dt>Instances</dt><dd>1.11k</dd></div>
+              <div><dt>Grasps</dt><dd>1.24M</dd></div>
+              <div><dt>Functional ratio</dt><dd>44.93%</dd></div>
+            </dl>
+          </article>
+          <article class="dataset-card align-card">
+            <h3>OpenDex-Align</h3>
+            <p>Compact but high-quality alignment from Manus-glove teleoperation, contact mapping, pose refinement, and transfer to nearby instances.</p>
+            <dl>
+              <div><dt>Categories</dt><dd>95</dd></div>
+              <div><dt>Instances</dt><dd>2.77k</dd></div>
+              <div><dt>Grasps</dt><dd>27.42k</dd></div>
+              <div><dt>Functional ratio</dt><dd>68.02%</dd></div>
+            </dl>
+          </article>
+        </div>
+        <figure class="figure-panel slim-figure">
+          <img src="./static/assets/figures/data_sample_cr.png" alt="Examples from OpenDex-Scale and OpenDex-Align.">
+        </figure>
+      </div>
+    </section>
+
+    <section class="section compact-section" id="method">
+      <div class="container is-max-widescreen">
+        <div class="section-heading">
+          <p class="section-kicker">Method</p>
+          <h2>Direct generation with shared functional grounding.</h2>
+          <p>
+            Multi-view images and instructions produce open-vocabulary semantic tokens, while the point cloud
+            supplies metric geometry. A transformer-based flow-matching action expert fuses semantic, geometry,
+            and action tokens to generate dexterous grasp poses.
+          </p>
+        </div>
+        <figure class="figure-panel">
+          <img src="./static/assets/figures/method.png" alt="OpenDexGrasp model architecture with pretrained VLM, geometry encoder, action expert, and auxiliary affordance output.">
+        </figure>
+        <div class="method-grid">
+          <article>
+            <h3>Open-vocabulary semantic-geometric latent</h3>
+            <p>
+              Hidden states from a pretrained vision-language encoder retain correlations among task words,
+              object appearance, and view-dependent part evidence. A point-cloud encoder contributes global
+              geometry and point features for contact-rich generation.
+            </p>
+          </article>
+          <article>
+            <h3>Flow-matching dexterous action generation</h3>
+            <p>
+              The action expert learns a time-dependent velocity field that transports Gaussian noise to a
+              task-conditioned grasp pose, directly modeling the distribution of functional dexterous actions.
+            </p>
+          </article>
+          <article>
+            <h3>Auxiliary affordance grounding</h3>
+            <p>
+              A point-level affordance head supervises the same latent space, improving interpretability and
+              functional contact without adding a separate test-time pose optimization stage.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band-section" id="results">
+      <div class="container is-max-widescreen">
+        <div class="section-heading centered">
+          <p class="section-kicker">Results</p>
+          <h2>Better task alignment, feasibility, and transfer.</h2>
+        </div>
+        <div class="result-grid">
+          <article class="result-card">
+            <span>Seen functional SR</span>
+            <strong>68.07%</strong>
+            <p>vs. 50.88% for DexGraspNet 2.0*</p>
+          </article>
+          <article class="result-card">
+            <span>Unseen functional SR</span>
+            <strong>62.96%</strong>
+            <p>vs. 43.22% for DexGraspNet 2.0*</p>
+          </article>
+          <article class="result-card">
+            <span>Unseen penetration depth</span>
+            <strong>0.48 cm</strong>
+            <p>vs. 1.62 cm for DexGraspNet 2.0*</p>
+          </article>
+          <article class="result-card">
+            <span>Real-world average SR</span>
+            <strong>72.0%</strong>
+            <p>vs. 59.0% for DexGraspNet 2.0*</p>
+          </article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Method</th>
+                <th>SIV <span class="direction-icon is-lower" role="img" aria-label="Lower is better" title="Lower is better"><i class="fas fa-arrow-down" aria-hidden="true"></i></span></th>
+                <th>PD <span class="direction-icon is-lower" role="img" aria-label="Lower is better" title="Lower is better"><i class="fas fa-arrow-down" aria-hidden="true"></i></span></th>
+                <th>SD <span class="direction-icon is-lower" role="img" aria-label="Lower is better" title="Lower is better"><i class="fas fa-arrow-down" aria-hidden="true"></i></span></th>
+                <th>SR <span class="direction-icon is-higher" role="img" aria-label="Higher is better" title="Higher is better"><i class="fas fa-arrow-up" aria-hidden="true"></i></span></th>
+                <th>Human score <span class="direction-icon is-higher" role="img" aria-label="Higher is better" title="Higher is better"><i class="fas fa-arrow-up" aria-hidden="true"></i></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Seen functional</td>
+                <td>DexGraspNet 2.0*</td>
+                <td>5.12</td>
+                <td>1.04</td>
+                <td>1.51</td>
+                <td>50.88</td>
+                <td>6.10</td>
+              </tr>
+              <tr class="ours-row">
+                <td>Seen functional</td>
+                <td>OpenDexGrasp</td>
+                <td>1.28</td>
+                <td>0.39</td>
+                <td>1.37</td>
+                <td>68.07</td>
+                <td>7.85</td>
+              </tr>
+              <tr>
+                <td>Unseen functional</td>
+                <td>DexGraspNet 2.0*</td>
+                <td>6.86</td>
+                <td>1.62</td>
+                <td>4.29</td>
+                <td>43.22</td>
+                <td>5.37</td>
+              </tr>
+              <tr class="ours-row">
+                <td>Unseen functional</td>
+                <td>OpenDexGrasp</td>
+                <td>1.39</td>
+                <td>0.48</td>
+                <td>1.80</td>
+                <td>62.96</td>
+                <td>6.62</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="figure-panel slim-figure">
+          <img src="./static/assets/figures/visualization.png" alt="Qualitative OpenDexGrasp grasp pose visualization.">
+        </figure>
+      </div>
+    </section>
+
+    <section class="section compact-section" id="demos">
+      <div class="container is-max-widescreen">
+        <div class="section-heading">
+          <p class="section-kicker">Demos</p>
+          <h2>Language-conditioned grasps on everyday objects.</h2>
+          <p>
+            The learned policy is deployed on a real dexterous hand across seen and unseen categories,
+            preserving functional contact choices while maintaining physically executable grasps.
+          </p>
+        </div>
+        <figure class="figure-panel setup-figure">
+          <img src="./static/assets/figures/real_world_setting.png" alt="Real-world robot experiment setup.">
+          <figcaption>
+            <strong>Real-world experiment setting.</strong> The Sharpa Wave Hand is mounted on a Franka Emika
+            Panda robotic arm, with an Intel RealSense D435 camera used for object pose estimation before
+            grasp execution.
+          </figcaption>
+        </figure>
+        <div class="demo-grid">
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8468_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Use the brush for cleaning.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8632_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Grasp the bouquet for floral decoration.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8470_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Grasp the massage hammer to relieve muscle tension.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8471_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Hold the rice paddle for scooping rice.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8475_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Pick up the pitcher to pour water.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8489_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Grasp the dustpan to collect debris.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8492_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Pick up the water bottle, to stay hydrated.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8494_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Grasp the bottle to dispense foam.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8497_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Grasp the umbrella to block the rain.</h3>
+            </div>
+          </article>
+          <article class="video-card">
+            <video autoplay muted loop playsinline controls preload="metadata">
+              <source src="./static/assets/realdemos/IMG_8503_5M.mp4" type="video/mp4">
+            </video>
+            <div class="video-caption">
+              <h3>Hand over the small bucket to eat some nuts.</h3>
+            </div>
+          </article>
+        </div>
+        <figure class="figure-panel">
+          <img src="./static/assets/figures/real_world_keyframe.png" alt="Real-world keyframes of task-oriented dexterous grasping.">
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band-section" id="bibtex">
+      <div class="container is-max-desktop">
+        <div class="section-heading">
+          <p class="section-kicker">Citation</p>
+          <h2>BibTeX</h2>
+        </div>
+        <pre class="bibtex"><code>@inproceedings{zhang2026opendexgrasp,
+  title = {OpenDexGrasp: Open-vocabulary Task-Oriented Dexterous Grasping},
+  author = {Jiyao Zhang and Junhan Wang and Tianyu Wang and Zeyuan Chen and Anthony Bolten and Yitong Peng and Hao Dong},
+  booktitle = {Conference on Robot Learning (CoRL)},
+  year = {2026}
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container is-max-desktop">
+      <p>
+        Website adapted from the Nerfies-style academic project template and rebuilt for OpenDexGrasp.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
