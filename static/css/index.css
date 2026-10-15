@@ -251,6 +251,18 @@ a:hover {
   font-size: 1.05em;
 }
 
+.acceptance-badge .oral-highlight {
+  margin-left: 10px;
+  padding: 3px 9px;
+  color: #71320d;
+  background: #ffe4a3;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+
 .publication-links {
   display: flex;
   justify-content: center;
